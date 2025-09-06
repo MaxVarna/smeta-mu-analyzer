@@ -1,0 +1,6 @@
+Requirement already satisfied: pdfminer.six==20231228 in ./venv/lib/python3.12/site-packages (20231228)
+Requirement already satisfied: six in ./venv/lib/python3.12/site-packages (1.17.0)
+Requirement already satisfied: charset-normalizer>=2.0.0 in ./venv/lib/python3.12/site-packages (from pdfminer.six==20231228) (3.4.3)
+Requirement already satisfied: cryptography>=36.0.0 in ./venv/lib/python3.12/site-packages (from pdfminer.six==20231228) (45.0.7)
+Requirement already satisfied: cffi>=1.14 in ./venv/lib/python3.12/site-packages (from cryptography>=36.0.0->pdfminer.six==20231228) (1.17.1)
+Requirement already satisfied: pycparser in ./venv/lib/python3.12/site-packages (from cffi>=1.14->cryptography>=36.0.0->pdfminer.six==20231228) (2.22)
