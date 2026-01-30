@@ -795,8 +795,8 @@ class PDFAnalyzer:
         rows = len(table)
         cols = len(table[0]) if table[0] else 0
         
-        # Критерий 1: Минимальные размеры
-        if rows < 2 or cols < 2:
+        # Критерий 1: Минимальные размеры (смягчен для однострочных таблиц)
+        if rows < 1 or cols < 2:
             return False
         
         # Критерий 2: Проверка на дублирование содержимого
@@ -822,8 +822,8 @@ class PDFAnalyzer:
                     non_empty_cells += 1
                     unique_values.add(cell.strip())
         
-        # Если меньше 50% ячеек заполнены, это скорее всего не таблица
-        if total_cells > 0 and (non_empty_cells / total_cells) < 0.5:
+        # Если меньше 30% ячеек заполнены, это скорее всего не таблица (смягчено для простых таблиц)
+        if total_cells > 0 and (non_empty_cells / total_cells) < 0.3:
             return False
         
         # Критерий 4: Проверка на пустые столбцы
@@ -1073,16 +1073,7 @@ class PDFAnalyzer:
             except Exception as e:
                 logger.warning(f"Ошибка анализа изображений на стр. {page_num}: {e}")
             
-            # 3. Проверка на "обычные" изображения
-            try:
-                if pymupdf_page.get_images(full=True):
-                    page_weight = 3
-                    reason = "Изображение"
-                    return page_weight, reason
-            except Exception as e:
-                logger.warning(f"Ошибка поиска изображений на стр. {page_num}: {e}")
-            
-            # 4. Проверка на таблицы (только если pdfplumber доступен)
+            # 3. Проверка на таблицы (ПРИОРИТЕТ ПЕРЕД ИЗОБРАЖЕНИЯМИ)
             if pdf:
                 try:
                     plumber_page = pdf.pages[page_index]
@@ -1092,6 +1083,15 @@ class PDFAnalyzer:
                         return page_weight, reason
                 except Exception as e:
                     logger.warning(f"Ошибка поиска таблиц на стр. {page_num}: {e}")
+            
+            # 4. Проверка на "обычные" изображения (простая и надежная)
+            try:
+                if pymupdf_page.get_images(full=True):
+                    page_weight = 3
+                    reason = "Изображение"
+                    return page_weight, reason
+            except Exception as e:
+                logger.warning(f"Ошибка поиска изображений на стр. {page_num}: {e}")
             
             # 5. Проверка на спецсимволы
             try:
